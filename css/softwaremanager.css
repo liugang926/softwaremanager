@@ -1,0 +1,133 @@
+/**
+ * Software Manager Plugin for GLPI
+ * CSS Styles
+ * 
+ * @author  Abner Liu
+ * @license GPL-2.0+
+ */
+
+/* Basic plugin styles */
+.softwaremanager-container {
+    margin: 20px;
+    padding: 20px;
+}
+
+.softwaremanager-header {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.softwaremanager-content {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+/* Navigation styles */
+.softwaremanager-nav {
+    margin-bottom: 20px;
+}
+
+.softwaremanager-nav .tab_cadre_fixe {
+    width: 100%;
+}
+
+.softwaremanager-nav .tab_cadre_fixe th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.softwaremanager-nav .tab_cadre_fixe td {
+    text-align: center;
+    padding: 10px;
+}
+
+.softwaremanager-nav .tab_cadre_fixe td a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.softwaremanager-nav .tab_cadre_fixe td a:hover {
+    color: #007bff;
+}
+
+.softwaremanager-nav .tab_bg_2 {
+    background-color: #e9ecef;
+}
+
+/* Button styles */
+.softwaremanager-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.softwaremanager-btn:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+.softwaremanager-btn-success {
+    background-color: #28a745;
+}
+
+.softwaremanager-btn-success:hover {
+    background-color: #1e7e34;
+}
+
+.softwaremanager-btn-danger {
+    background-color: #dc3545;
+}
+
+.softwaremanager-btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Status indicators */
+.softwaremanager-status-active {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.softwaremanager-status-inactive {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.softwaremanager-status-violation {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Loading indicator */
+.softwaremanager-loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.softwaremanager-loading::after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

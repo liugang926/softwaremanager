@@ -1,0 +1,290 @@
+/* Analytics Dashboard Styles */
+
+/* 分析仪表盘样式 */
+.analytics-container {
+    margin: 20px 0;
+}
+
+.view-navigation {
+    margin-bottom: 25px;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.view-navigation .nav-header {
+    background: #fbfbfb;
+    padding: 12px 20px;
+    border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    color: #333;
+}
+
+.view-tabs {
+    display: flex;
+    background: #f8f9fa;
+}
+
+.view-tab {
+    flex: 1;
+    padding: 15px 20px;
+    text-align: center;
+    border-right: 1px solid #dddddd;
+    background: #ffffff;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.view-tab:last-child {
+    border-right: none;
+}
+
+.view-tab:hover {
+    background: #e9ecef;
+    color: #333;
+    text-decoration: none;
+}
+
+.view-tab.active {
+    background: #337ab7;
+    color: white;
+    font-weight: bold;
+}
+
+.view-tab .tab-icon {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.view-tab .tab-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 概览卡片样式 */
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.overview-card {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.overview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    border-color: #337ab7;
+}
+
+.overview-card .card-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #337ab7;
+}
+
+.overview-card .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.overview-card .card-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #337ab7;
+    margin-bottom: 5px;
+}
+
+.overview-card .card-description {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* 快速统计区域 */
+.quick-stats {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    margin-bottom: 25px;
+}
+
+.quick-stats .center {
+    background: #fbfbfb;
+    padding: 12px;
+    border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    color: #333;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #337ab7;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 内容区域 */
+.analytics-content {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    min-height: 400px;
+}
+
+.content-header {
+    background: #fbfbfb;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    color: #333;
+}
+
+.content-body {
+    padding: 20px;
+}
+
+/* 合规状态样式 */
+.compliance-status { 
+    padding: 3px 8px; 
+    border-radius: 3px; 
+    font-size: 11px; 
+    font-weight: bold; 
+    white-space: nowrap;
+}
+.status-approved { 
+    background-color: #dff0d8; 
+    color: #3c763d; 
+    border: 1px solid #d6e9c6; 
+}
+.status-blacklisted { 
+    background-color: #f2dede; 
+    color: #a94442; 
+    border: 1px solid #ebccd1; 
+}
+.status-unmanaged { 
+    background-color: #fcf8e3; 
+    color: #8a6d3b; 
+    border: 1px solid #faebcc; 
+}
+
+/* 警告样式 */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.alert h4 {
+    margin-top: 0;
+    color: inherit;
+}
+
+/* 分页样式 */
+.pagination {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.pagination a, .pagination .current {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.pagination a {
+    color: #337ab7;
+    background-color: #fff;
+}
+
+.pagination a:hover {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+.pagination .current {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .view-tabs {
+        flex-direction: column;
+    }
+    
+    .view-tab {
+        border-right: none;
+        border-bottom: 1px solid #dddddd;
+    }
+    
+    .overview-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .view-tab .tab-icon {
+        font-size: 16px;
+    }
+    
+    .view-tab .tab-label {
+        font-size: 11px;
+    }
+}

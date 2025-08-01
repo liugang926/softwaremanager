@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <name>Software Manager</name>
+   <key>softwaremanager</key>
+   <state>stable</state>
+   <logo>https://raw.githubusercontent.com/liugang926/GLPI_softwarecompliance/main/logo.png</logo>
+   <description>
+      <short>
+         <en><![CDATA[Enhanced software asset management with compliance checking for GLPI]]></en>
+         <zh_CN><![CDATA[GLPI增强型软件资产管理与合规检查插件]]></zh_CN>
+      </short>
+      <long>
+         <en><![CDATA[
+This plugin enhances GLPI's software asset management capabilities by providing:
+- Software inventory management with blacklist/whitelist functionality
+- Automated compliance scanning and reporting
+- Email notifications for violations
+- Detailed compliance reports
+- Integration with GLPI's existing software inventory
+
+The plugin helps organizations maintain software compliance by automatically scanning installed software against configured blacklists and whitelists, generating detailed reports, and notifying administrators of violations.
+         ]]></en>
+         <zh_CN><![CDATA[
+本插件增强了GLPI的软件资产管理能力，提供以下功能：
+- 基于黑白名单的软件清单管理
+- 自动化合规扫描和报告
+- 违规邮件通知
+- 详细的合规报告
+- 与GLPI现有软件清单的集成
+
+该插件通过自动扫描已安装软件与配置的黑白名单进行对比，生成详细报告，并通知管理员违规情况，帮助组织维护软件合规性。
+         ]]></zh_CN>
+      </long>
+   </description>
+   <homepage>https://github.com/liugang926/GLPI_softwarecompliance</homepage>
+   <download>https://github.com/liugang926/GLPI_softwarecompliance/releases</download>
+   <issues>https://github.com/liugang926/GLPI_softwarecompliance/issues</issues>
+   <readme>https://github.com/liugang926/GLPI_softwarecompliance/blob/main/README.md</readme>
+   <authors>
+      <author>Abner Liu</author>
+   </authors>
+   <versions>
+      <version>
+         <num>1.0.0</num>
+         <compatibility>~10.0.11</compatibility>
+         <download_url>https://github.com/liugang926/GLPI_softwarecompliance/releases/download/v1.0.0/softwaremanager-1.0.0.tar.gz</download_url>
+      </version>
+   </versions>
+   <langs>
+      <lang>en_US</lang>
+      <lang>zh_CN</lang>
+   </langs>
+   <license>GPL-2.0+</license>
+   <tags>
+      <en>
+         <tag>software</tag>
+         <tag>compliance</tag>
+         <tag>asset management</tag>
+         <tag>inventory</tag>
+         <tag>security</tag>
+      </en>
+      <zh_CN>
+         <tag>软件</tag>
+         <tag>合规</tag>
+         <tag>资产管理</tag>
+         <tag>清单</tag>
+         <tag>安全</tag>
+      </zh_CN>
+   </tags>
+   <screenshots>
+      <screenshot>https://raw.githubusercontent.com/liugang926/GLPI_softwarecompliance/main/screenshots/dashboard.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/liugang926/GLPI_softwarecompliance/main/screenshots/whitelist.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/liugang926/GLPI_softwarecompliance/main/screenshots/reports.png</screenshot>
+   </screenshots>
+</root>

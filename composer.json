@@ -1,0 +1,37 @@
+{
+    "name": "liugang926/glpi-softwaremanager",
+    "description": "Software Manager Plugin for GLPI - Enhanced software asset management with compliance checking",
+    "type": "glpi-plugin",
+    "keywords": ["glpi", "plugin", "software", "compliance", "asset management"],
+    "homepage": "https://github.com/liugang926/GLPI_softwarecompliance.git",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Abner Liu",
+            "email": "liugang926@example.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/liugang926/GLPI_softwarecompliance/issues",
+        "source": "https://github.com/liugang926/GLPI_softwarecompliance"
+    },
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "squizlabs/php_codesniffer": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PluginSoftwaremanager\\": "inc/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
