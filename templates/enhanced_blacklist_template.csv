@@ -1,0 +1,9 @@
+name,version,publisher,category,priority,is_active,computers,users,groups,version_rules,comment,computer_required,user_required,group_required,version_required
+BitTorrent,7.10.5,BitTorrent Inc,P2P,8,1,,所有用户,开发团队,,P2P下载软件,0,0,0,0
+LimeWire,5.5.16,LimeWire LLC,P2P,9,1,,所有用户,所有群组,,P2P文件共享,0,0,0,0
+uTorrent,3.6.0,BitTorrent Inc,P2P,8,1,,所有用户,所有群组,,BT下载客户端,0,0,0,0
+Kazaa,3.2.7,Kazaa,P2P,9,1,,所有用户,所有群组,,P2P文件共享,0,0,0,0
+BearShare,12.0,MusicLab,P2P,7,1,,所有用户,所有群组,,P2P音乐共享,0,0,0,0
+Morpheus,5.3.2,Morpheus,P2P,8,1,,所有用户,所有群组,,P2P文件搜索,0,0,0,0
+eMule,0.60d,eMule Team,P2P,7,1,,所有用户,所有群组,,电驴客户端,0,0,0,0
+FrostWire,6.9.8,FrostWire,P2P,8,1,,所有用户,所有群组,,P2P文件共享,0,0,0,0

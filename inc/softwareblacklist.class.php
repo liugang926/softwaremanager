@@ -38,6 +38,7 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
 
             $query = "CREATE TABLE `$table` (
                 `id` int unsigned NOT NULL AUTO_INCREMENT,
+                `entities_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'GLPI实体ID',
                 `name` varchar(255) NOT NULL,
                 `version` varchar(100) DEFAULT NULL,
                 `publisher` varchar(255) DEFAULT NULL,
@@ -54,9 +55,14 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
                 `users_id` TEXT DEFAULT NULL COMMENT '适用用户ID JSON数组',
                 `groups_id` TEXT DEFAULT NULL COMMENT '适用群组ID JSON数组',
                 `version_rules` TEXT DEFAULT NULL COMMENT '高级版本规则，换行分隔',
+                `computer_required` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '计算机条件是否必须满足',
+                `user_required` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '用户条件是否必须满足',
+                `group_required` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '群组条件是否必须满足',
+                `version_required` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '版本条件是否必须满足',
                 `date_creation` timestamp NULL DEFAULT NULL,
                 `date_mod` timestamp NULL DEFAULT NULL,
                 PRIMARY KEY (`id`),
+                KEY `entities_id` (`entities_id`),
                 KEY `name` (`name`),
                 KEY `publisher` (`publisher`),
                 KEY `category` (`category`),
@@ -156,7 +162,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
     static function addToListExtended($data) {
         $blacklist = new self();
 
-        // 设置默认值，但不在这里处理JSON字段，让prepareInputForAdd处理
+        // 检查是否已存在同名记录
+        $existing = $blacklist->find(['name' => $data['name'], 'is_deleted' => 0]);
+        
+        if (!empty($existing)) {
+            // 记录已存在，返回false表示没有添加新记录
+            error_log("记录已存在，跳过: " . $data['name']);
+            return false;
+        }
+
+        // 设置默认值，包括实体ID
         $input = [
             'name' => $data['name'],
             'version' => $data['version'] ?? null,
@@ -172,6 +187,9 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
             'date_creation' => date('Y-m-d H:i:s'),
             'date_mod' => date('Y-m-d H:i:s'),
             
+            // 设置实体ID - 优先使用传入的entities_id，否则使用当前会话的实体
+            'entities_id' => $data['entities_id'] ?? ($_SESSION['glpiactive_entity'] ?? 0),
+            
             // 增强字段 - 原始数据传递给prepareInputForAdd处理
             'computers_id' => $data['computers_id'] ?? null,
             'users_id' => $data['users_id'] ?? null, 
@@ -179,7 +197,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
             'version_rules' => $data['version_rules'] ?? null
         ];
 
-        return $blacklist->add($input);
+        $result = $blacklist->add($input);
+        
+        // 记录调试信息
+        if ($result) {
+            error_log("addToListExtended 成功插入: " . $data['name'] . " -> ID: $result");
+        } else {
+            error_log("addToListExtended 插入失败: " . $data['name']);
+        }
+        
+        return $result;
     }
 
     /**
@@ -275,10 +302,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
         echo "<i class='fas fa-magic' style='margin-right: 5px; color: #17a2b8;'></i>增强规则设置";
         echo "</th></tr>";
 
-        // 适用计算机选择器
+        // 适用计算机选择器（复选框在标签旁边）
         echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('适用计算机', 'softwaremanager') . "</td>";
+        $computer_required = $this->fields['computer_required'] ?? 0;
+        echo "<td><label style='display: flex; align-items: center;'>";
+        echo "<input type='checkbox' name='computer_required' value='1' " . ($computer_required ? 'checked' : '') . " style='margin-right: 8px; transform: scale(1.1);' title='勾选=计算机条件必须匹配，不勾选=可选条件'>";
+        echo "💻 " . __('适用计算机', 'softwaremanager');
+        echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+        echo "</label></td>";
         echo "<td colspan='3'>";
+        
         $computers_selected = [];
         if (!empty($this->fields['computers_id'])) {
             $computers_json = json_decode($this->fields['computers_id'], true);
@@ -339,10 +372,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
         echo "</td>";
         echo "</tr>";
 
-        // 适用用户选择器
+        // 适用用户选择器（复选框在标签旁边）
         echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('适用用户', 'softwaremanager') . "</td>";
+        $user_required = $this->fields['user_required'] ?? 0;
+        echo "<td><label style='display: flex; align-items: center;'>";
+        echo "<input type='checkbox' name='user_required' value='1' " . ($user_required ? 'checked' : '') . " style='margin-right: 8px; transform: scale(1.1);' title='勾选=用户条件必须匹配，不勾选=可选条件'>";
+        echo "👥 " . __('适用用户', 'softwaremanager');
+        echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+        echo "</label></td>";
         echo "<td colspan='3'>";
+        
         $users_selected = [];
         if (!empty($this->fields['users_id'])) {
             $users_json = json_decode($this->fields['users_id'], true);
@@ -400,10 +439,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
         echo "</td>";
         echo "</tr>";
 
-        // 适用群组选择器
+        // 适用群组选择器（复选框在标签旁边）
         echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('适用群组', 'softwaremanager') . "</td>";
+        $group_required = $this->fields['group_required'] ?? 0;
+        echo "<td><label style='display: flex; align-items: center;'>";
+        echo "<input type='checkbox' name='group_required' value='1' " . ($group_required ? 'checked' : '') . " style='margin-right: 8px; transform: scale(1.1);' title='勾选=群组条件必须匹配，不勾选=可选条件'>";
+        echo "👨‍👩‍👧‍👦 " . __('适用群组', 'softwaremanager');
+        echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+        echo "</label></td>";
         echo "<td colspan='3'>";
+        
         $groups_selected = [];
         if (!empty($this->fields['groups_id'])) {
             $groups_json = json_decode($this->fields['groups_id'], true);
@@ -435,10 +480,16 @@ class PluginSoftwaremanagerSoftwareBlacklist extends CommonDBTM
         echo "</td>";
         echo "</tr>";
 
-        // 高级版本规则
+        // 高级版本规则（复选框在标签旁边）
         echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('高级版本规则', 'softwaremanager') . "</td>";
+        $version_required = $this->fields['version_required'] ?? 0;
+        echo "<td><label style='display: flex; align-items: center;'>";
+        echo "<input type='checkbox' name='version_required' value='1' " . ($version_required ? 'checked' : '') . " style='margin-right: 8px; transform: scale(1.1);' title='勾选=版本条件必须匹配，不勾选=可选条件'>";
+        echo "📝 " . __('高级版本规则', 'softwaremanager');
+        echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+        echo "</label></td>";
         echo "<td colspan='3'>";
+        
         echo "<textarea name='version_rules' rows='4' cols='80' placeholder='示例:\n>2.0\n<3.0\n1.5-2.5\n!=1.0'>" .
              Html::cleanInputText($this->fields['version_rules'] ?? '') . "</textarea>";
         echo "<br><small style='color: #666;'>每行一个规则，支持：>2.0, <3.0, >=1.5, <=2.5, 1.0-2.0, !=1.0<br>";

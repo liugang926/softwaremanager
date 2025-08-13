@@ -4,6 +4,9 @@
  * Contains all enhanced matching logic extracted from scanresult.php
  */
 
+// Include granular matching logic
+include_once(__DIR__ . '/../../inc/granular_matching.php');
+
 /**
  * 新的通配符匹配函数
  * @param string $software_name 软件名称
@@ -354,7 +357,7 @@ function getInstallationsWithCompliance($DB) {
     $blacklists = [];
 
     if ($DB->tableExists('glpi_plugin_softwaremanager_whitelists')) {
-        $wl_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, comment FROM `glpi_plugin_softwaremanager_whitelists` WHERE is_active = 1");
+        $wl_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, computer_required, user_required, group_required, version_required, comment FROM `glpi_plugin_softwaremanager_whitelists` WHERE is_active = 1");
         if ($wl_result) {
             while ($row = $DB->fetchAssoc($wl_result)) {
                 $whitelists[] = $row;
@@ -363,7 +366,7 @@ function getInstallationsWithCompliance($DB) {
     }
 
     if ($DB->tableExists('glpi_plugin_softwaremanager_blacklists')) {
-        $bl_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, comment FROM `glpi_plugin_softwaremanager_blacklists` WHERE is_active = 1");
+        $bl_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, computer_required, user_required, group_required, version_required, comment FROM `glpi_plugin_softwaremanager_blacklists` WHERE is_active = 1");
         if ($bl_result) {
             while ($row = $DB->fetchAssoc($bl_result)) {
                 $blacklists[] = $row;
@@ -410,7 +413,7 @@ function getInstallationsWithCompliance($DB) {
             // 检查黑名单（优先级最高） - 使用之前获取的规则数据
             foreach ($blacklists as $blacklist_rule) {
                 $rule_match_details = [];
-                if (matchEnhancedSoftwareRuleInReport($installation, $blacklist_rule, $rule_match_details)) {
+                if (matchGranularSoftwareRule($installation, $blacklist_rule, $rule_match_details)) {
                     $compliance_status = 'blacklisted';
                     $matched_rule = $blacklist_rule['name'];
                     $match_details = $rule_match_details;
@@ -423,7 +426,7 @@ function getInstallationsWithCompliance($DB) {
             if ($compliance_status === 'unmanaged') {
                 foreach ($whitelists as $whitelist_rule) {
                     $rule_match_details = [];
-                    if (matchEnhancedSoftwareRuleInReport($installation, $whitelist_rule, $rule_match_details)) {
+                    if (matchGranularSoftwareRule($installation, $whitelist_rule, $rule_match_details)) {
                         $compliance_status = 'approved';
                         $matched_rule = $whitelist_rule['name'];
                         $match_details = $rule_match_details;

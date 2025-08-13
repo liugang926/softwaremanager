@@ -5,6 +5,9 @@
 
 include('../../../inc/includes.php');
 
+// Include granular matching logic
+include_once(__DIR__ . '/../inc/granular_matching.php');
+
 // Set JSON response header first and enable error reporting for debugging
 header('Content-Type: application/json; charset=UTF-8');
 ini_set('display_errors', 0); // Don't display errors directly
@@ -362,9 +365,9 @@ try {
     $whitelists = [];
     $blacklists = [];
     
-    // 获取活跃的白名单（包含增强字段）
+    // 获取活跃的白名单（包含增强字段和新的必需字段）
     if ($DB->tableExists('glpi_plugin_softwaremanager_whitelists')) {
-        $whitelist_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, comment FROM `glpi_plugin_softwaremanager_whitelists` WHERE is_active = 1");
+        $whitelist_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, computer_required, user_required, group_required, version_required, comment FROM `glpi_plugin_softwaremanager_whitelists` WHERE is_active = 1");
         if ($whitelist_result) {
             while ($row = $DB->fetchAssoc($whitelist_result)) {
                 $whitelists[] = $row;
@@ -372,9 +375,9 @@ try {
         }
     }
     
-    // 获取活跃的黑名单（包含增强字段）
+    // 获取活跃的黑名单（包含增强字段和新的必需字段）
     if ($DB->tableExists('glpi_plugin_softwaremanager_blacklists')) {
-        $blacklist_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, comment FROM `glpi_plugin_softwaremanager_blacklists` WHERE is_active = 1");
+        $blacklist_result = $DB->query("SELECT id, name, version, computers_id, users_id, groups_id, version_rules, computer_required, user_required, group_required, version_required, comment FROM `glpi_plugin_softwaremanager_blacklists` WHERE is_active = 1");
         if ($blacklist_result) {
             while ($row = $DB->fetchAssoc($blacklist_result)) {
                 $blacklists[] = $row;
@@ -421,7 +424,8 @@ try {
         // 检查是否在黑名单中（优先级最高）
         foreach ($blacklists as $blacklist_rule) {
             $rule_match_details = [];
-            if (matchEnhancedSoftwareRule($installation, $blacklist_rule, $rule_match_details)) {
+            // 使用新的细粒度匹配函数
+            if (matchGranularSoftwareRule($installation, $blacklist_rule, $rule_match_details)) {
                 $compliance_status = 'blacklisted';
                 $matched_rule = $blacklist_rule['name'];
                 $match_details = $rule_match_details;
@@ -434,7 +438,8 @@ try {
         if ($compliance_status === 'unmanaged') {
             foreach ($whitelists as $whitelist_rule) {
                 $rule_match_details = [];
-                if (matchEnhancedSoftwareRule($installation, $whitelist_rule, $rule_match_details)) {
+                // 使用新的细粒度匹配函数
+                if (matchGranularSoftwareRule($installation, $whitelist_rule, $rule_match_details)) {
                     $compliance_status = 'approved';
                     $matched_rule = $whitelist_rule['name'];
                     $match_details = $rule_match_details;

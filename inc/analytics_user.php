@@ -220,8 +220,7 @@ if ($selected_user) {
                        WHERE sd.scanhistory_id = $scanhistory_id 
                        AND sd.user_name = '" . $DB->escape($selected_user) . "'
                        GROUP BY sd.software_name, sd.software_version, sd.compliance_status
-                       ORDER BY sd.compliance_status DESC, computer_count DESC
-                       LIMIT 50";
+                       ORDER BY sd.compliance_status DESC, computer_count DESC";
     $software_result = $DB->query($software_query);
     
     if ($software_result && $DB->numrows($software_result) > 0) {
@@ -279,8 +278,7 @@ $user_query = "SELECT user_name, user_realname,
                FROM `glpi_plugin_softwaremanager_scandetails` 
                WHERE scanhistory_id = $scanhistory_id AND user_name IS NOT NULL AND user_name != ''
                GROUP BY user_name, user_realname 
-               ORDER BY blacklisted_count DESC, total_software DESC
-               LIMIT 50";
+               ORDER BY blacklisted_count DESC, total_software DESC";
 $user_result = $DB->query($user_query);
 
 // Summary statistics
@@ -325,7 +323,7 @@ echo "</div>";
 echo "</div>";
 
 if ($user_result && $DB->numrows($user_result) > 0) {
-    echo "<h4>用户合规分析（Top 50）</h4>";
+    echo "<h4>用户合规分析</h4>";
     echo "<table class='tab_cadre_fixehov'>";
     echo "<tr class='noHover'>";
     echo "<th>用户</th>";
