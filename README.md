@@ -511,6 +511,11 @@ Copyright © 2025 Abner Liu. All rights reserved.
 <img width="2268" height="1170" alt="image" src="https://github.com/user-attachments/assets/42330518-a706-492b-932c-0eee3b0f494f" />
 ### 多维度管理报表
 <img width="2350" height="1398" alt="image" src="https://github.com/user-attachments/assets/b8f38e34-4b1e-4d19-82bc-2f3292216da4" />
+### 邮件通知
+<img width="1864" height="1190" alt="image" src="https://github.com/user-attachments/assets/d08934da-0848-4928-a54c-b419f81c1df7" />
+<img width="1878" height="1574" alt="image" src="https://github.com/user-attachments/assets/902fd285-7f30-4da5-bcbc-8ede0ede77b5" />
+
+
 
 
 
