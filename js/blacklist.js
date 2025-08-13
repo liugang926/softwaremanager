@@ -83,6 +83,17 @@ function populateEditForm(data) {
     // Fill enhanced selectors instead of multi-select dropdowns
     fillEnhancedSelectors(data);
     
+    // 设置简化的匹配逻辑复选框（安全检查）
+    var computerCheckbox = document.querySelector("[name='computer_required']");
+    var userCheckbox = document.querySelector("[name='user_required']");
+    var groupCheckbox = document.querySelector("[name='group_required']");
+    var versionCheckbox = document.querySelector("[name='version_required']");
+    
+    if (computerCheckbox) computerCheckbox.checked = data.computer_required == 1;
+    if (userCheckbox) userCheckbox.checked = data.user_required == 1;
+    if (groupCheckbox) groupCheckbox.checked = data.group_required == 1;
+    if (versionCheckbox) versionCheckbox.checked = data.version_required == 1;
+    
     document.querySelector("[name='version_rules']").value = data.version_rules || '';
     
     // Set up edit mode
@@ -118,6 +129,17 @@ function showAddModal() {
     
     // 重置增强字段
     resetEnhancedFields();
+    
+    // 重置简化的匹配逻辑复选框（安全检查）
+    var computerCheckbox = document.querySelector("[name='computer_required']");
+    var userCheckbox = document.querySelector("[name='user_required']");
+    var groupCheckbox = document.querySelector("[name='group_required']");
+    var versionCheckbox = document.querySelector("[name='version_required']");
+    
+    if (computerCheckbox) computerCheckbox.checked = false;
+    if (userCheckbox) userCheckbox.checked = false;
+    if (groupCheckbox) groupCheckbox.checked = false;
+    if (versionCheckbox) versionCheckbox.checked = false;
     
     var editIdField = document.querySelector("[name='edit_id']");
     if (editIdField) {

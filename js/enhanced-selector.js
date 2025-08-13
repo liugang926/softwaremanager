@@ -254,7 +254,6 @@ class EnhancedSelector {
                 e.preventDefault();
                 e.stopPropagation();
                 const id = item.dataset.id;
-                console.log('点击选项，ID:', id); // 调试信息
                 this.toggleSelection(id);
             });
         });
@@ -312,7 +311,6 @@ class EnhancedSelector {
                 e.preventDefault();
                 e.stopPropagation();
                 const id = btn.dataset.id;
-                console.log('删除标签，ID:', id); // 调试信息
                 this.selectedItems.delete(String(id));
                 this.renderTags();
                 this.renderOptions();

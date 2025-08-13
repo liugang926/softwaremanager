@@ -13,11 +13,13 @@ include('../../../inc/includes.php'); // 确保在最开始加载核心环境
 global $CFG_GLPI;
 
 /**
- * 格式化增强字段显示 - 修复双重JSON编码问题
+ * 格式化增强字段显示 - 修复双重JSON编码问题，并显示必需标识
  */
-function formatEnhancedField($json_data, $table_type) {
+function formatEnhancedField($json_data, $table_type, $is_required = false) {
+    $required_indicator = $is_required ? '<span style="color: #d9534f; font-weight: bold; margin-left: 4px;" title="此条件为必需">✓</span>' : '';
+    
     if (empty($json_data)) {
-        return '<span style="color: #999;">全部</span>';
+        return '<span style="color: #999;">全部</span>' . $required_indicator;
     }
     
     // 尝试解析JSON数据，处理可能的双重编码
@@ -25,7 +27,7 @@ function formatEnhancedField($json_data, $table_type) {
     
     // 如果第一次解析失败或结果不是数组，返回默认值
     if (!is_array($ids)) {
-        return '<span style="color: #999;">全部</span>';
+        return '<span style="color: #999;">全部</span>' . $required_indicator;
     }
     
     // 检查是否存在双重编码（数组的第一个元素是JSON字符串）
@@ -37,7 +39,7 @@ function formatEnhancedField($json_data, $table_type) {
     }
     
     if (empty($ids)) {
-        return '<span style="color: #999;">全部</span>';
+        return '<span style="color: #999;">全部</span>' . $required_indicator;
     }
     
     global $DB;
@@ -48,38 +50,69 @@ function formatEnhancedField($json_data, $table_type) {
     ];
     
     if (!isset($table_map[$table_type])) {
-        return '-';
+        return '-' . $required_indicator;
     }
     
     $names = [];
     foreach ($ids as $id) {
-        $result = $DB->request([
-            'FROM' => $table_map[$table_type],
-            'WHERE' => ['id' => $id]
-        ]);
+        // 根据类型构建不同的查询，对于用户需要获取额外字段
+        if ($table_type === 'User') {
+            $result = $DB->request([
+                'SELECT' => ['id', 'name', 'realname', 'firstname'],
+                'FROM' => $table_map[$table_type],
+                'WHERE' => ['id' => $id]
+            ]);
+        } else {
+            $result = $DB->request([
+                'FROM' => $table_map[$table_type],
+                'WHERE' => ['id' => $id]
+            ]);
+        }
         
         foreach ($result as $row) {
-            $names[] = $row['name'];
+            if ($table_type === 'User') {
+                // 对用户显示真实姓名：优先显示 realname，如果没有则显示 name
+                $display_name = '';
+                if (!empty($row['realname'])) {
+                    $display_name = $row['realname'];
+                    // 如果还有 firstname，组合显示
+                    if (!empty($row['firstname'])) {
+                        $display_name = $row['firstname'] . ' ' . $display_name;
+                    }
+                } elseif (!empty($row['firstname'])) {
+                    $display_name = $row['firstname'];
+                } else {
+                    $display_name = $row['name']; // 使用登录名作为备选
+                }
+                $names[] = $display_name;
+            } else {
+                $names[] = $row['name'];
+            }
         }
     }
     
     if (empty($names)) {
-        return '-';
+        return '-' . $required_indicator;
     }
     
+    $name_display = '';
     if (count($names) > 3) {
-        return implode(', ', array_slice($names, 0, 3)) . ' <small>(+' . (count($names) - 3) . ')</small>';
+        $name_display = implode(', ', array_slice($names, 0, 3)) . ' <small>(+' . (count($names) - 3) . ')</small>';
+    } else {
+        $name_display = implode(', ', $names);
     }
     
-    return implode(', ', $names);
+    return $name_display . $required_indicator;
 }
 
 /**
- * 格式化版本规则显示
+ * 格式化版本规则显示，包含必需标识
  */
-function formatVersionRules($rules) {
+function formatVersionRules($rules, $is_required = false) {
+    $required_indicator = $is_required ? '<span style="color: #d9534f; font-weight: bold; margin-left: 4px;" title="此条件为必需">✓</span>' : '';
+    
     if (empty($rules)) {
-        return '-';
+        return '-' . $required_indicator;
     }
     
     $lines = explode("\n", $rules);
@@ -87,14 +120,14 @@ function formatVersionRules($rules) {
     $lines = array_filter($lines);
     
     if (empty($lines)) {
-        return '-';
+        return '-' . $required_indicator;
     }
     
     if (count($lines) == 1) {
-        return '<code>' . htmlspecialchars($lines[0]) . '</code>';
+        return '<code>' . htmlspecialchars($lines[0]) . '</code>' . $required_indicator;
     }
     
-    return '<code>' . htmlspecialchars($lines[0]) . '</code> <small>(+' . (count($lines) - 1) . ')</small>';
+    return '<code>' . htmlspecialchars($lines[0]) . '</code> <small>(+' . (count($lines) - 1) . ')</small>' . $required_indicator;
 }
 
 // 检查用户权限 - using plugin permissions
@@ -110,8 +143,6 @@ if (isset($_POST["add_item"]) && isset($_POST["edit_id"])) {
 
     if (!empty($software_name) && $edit_id > 0) {
         try {
-            // DEBUG: 输出POST数据用于调试
-            error_log("Blacklist Edit - POST data: " . print_r($_POST, true));
             
             $blacklist_obj = new PluginSoftwaremanagerSoftwareBlacklist();
 
@@ -131,7 +162,11 @@ if (isset($_POST["add_item"]) && isset($_POST["edit_id"])) {
                 'computers_id' => isset($_POST['computers_id']) && !empty($_POST['computers_id']) ? $_POST['computers_id'] : null,
                 'users_id' => isset($_POST['users_id']) && !empty($_POST['users_id']) ? $_POST['users_id'] : null,
                 'groups_id' => isset($_POST['groups_id']) && !empty($_POST['groups_id']) ? $_POST['groups_id'] : null,
-                'version_rules' => isset($_POST['version_rules']) ? Html::cleanInputText($_POST['version_rules']) : null
+                'version_rules' => isset($_POST['version_rules']) ? Html::cleanInputText($_POST['version_rules']) : null,
+                'computer_required' => isset($_POST['computer_required']) ? 1 : 0,
+                'user_required' => isset($_POST['user_required']) ? 1 : 0,
+                'group_required' => isset($_POST['group_required']) ? 1 : 0,
+                'version_required' => isset($_POST['version_required']) ? 1 : 0
             ];
 
             if ($blacklist_obj->update($data)) {
@@ -155,8 +190,6 @@ if (isset($_POST["add_item"]) && !isset($_POST["edit_id"])) {
 
     if (!empty($software_name)) {
         try {
-            // DEBUG: 输出POST数据用于调试
-            error_log("Blacklist Add - POST data: " . print_r($_POST, true));
             
             // 使用扩展的添加方法，支持对象管理
             $data = [
@@ -173,7 +206,11 @@ if (isset($_POST["add_item"]) && !isset($_POST["edit_id"])) {
                 'computers_id' => isset($_POST['computers_id']) && !empty($_POST['computers_id']) ? $_POST['computers_id'] : null,
                 'users_id' => isset($_POST['users_id']) && !empty($_POST['users_id']) ? $_POST['users_id'] : null,
                 'groups_id' => isset($_POST['groups_id']) && !empty($_POST['groups_id']) ? $_POST['groups_id'] : null,
-                'version_rules' => isset($_POST['version_rules']) ? Html::cleanInputText($_POST['version_rules']) : null
+                'version_rules' => isset($_POST['version_rules']) ? Html::cleanInputText($_POST['version_rules']) : null,
+                'computer_required' => isset($_POST['computer_required']) ? 1 : 0,
+                'user_required' => isset($_POST['user_required']) ? 1 : 0,
+                'group_required' => isset($_POST['group_required']) ? 1 : 0,
+                'version_required' => isset($_POST['version_required']) ? 1 : 0
             ];
 
             if (PluginSoftwaremanagerSoftwareBlacklist::addToListExtended($data)) {
@@ -266,11 +303,31 @@ Html::header(
 // 显示导航菜单
 PluginSoftwaremanagerMenu::displayNavigationHeader('blacklist');
 
-// ----------------- 添加新项目的按钮 -----------------
+// ----------------- 添加新项目的按钮和导入导出功能 -----------------
 echo "<div class='center' style='margin-bottom: 20px;'>";
+echo "<div class='btn-group' style='display: inline-flex; gap: 10px; flex-wrap: wrap;'>";
+
+// 添加按钮
 echo "<button type='button' class='btn btn-success btn-lg' onclick='showAddModal()' title='" . __('Add new item to blacklist', 'softwaremanager') . "'>";
 echo "<i class='fas fa-plus'></i> " . __('Add to Blacklist', 'softwaremanager');
 echo "</button>";
+
+// 导入按钮 - 跳转到专用导入页面
+echo "<a href='import.php?list_type=blacklist' class='btn btn-primary btn-lg' title='批量导入黑名单数据' target='_blank'>";
+echo "<i class='fas fa-file-import'></i> 批量导入";
+echo "</a>";
+
+// 导出按钮
+echo "<button type='button' class='btn btn-info btn-lg' onclick='exportBlacklist()' title='导出黑名单数据到CSV文件'>";
+echo "<i class='fas fa-file-export'></i> 导出数据";
+echo "</button>";
+
+// 下载模板按钮
+echo "<button type='button' class='btn btn-secondary btn-lg' onclick='downloadTemplate(\"blacklist\")' title='下载CSV导入模板'>";
+echo "<i class='fas fa-file-download'></i> 下载模板";
+echo "</button>";
+
+echo "</div>";
 echo "</div>";
 
 // ----------------- 模态框表单 -----------------
@@ -313,33 +370,56 @@ echo "<i class='fas fa-magic' style='margin-right: 5px; color: #17a2b8;'></i>�
 echo "</th></tr>";
 
 // 适用计算机选择器 - 使用增强组件
-echo "<tr class='tab_bg_1'><td>💻 ".__('适用计算机', 'softwaremanager')."</td>";
+echo "<tr class='tab_bg_1'>";
+echo "<td><label style='display: flex; align-items: center;'>";
+echo "<input type='checkbox' name='computer_required' value='1' style='margin-right: 8px; transform: scale(1.1);' title='勾选=计算机条件必须匹配，不勾选=可选条件'>";
+echo "💻 " . __('适用计算机', 'softwaremanager');
+echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+echo "</label></td>";
 echo "<td>";
 echo "<div id='computers-selector-container'></div>";
 echo "<input type='hidden' name='computers_id' id='computers_id_hidden'>";
 echo "</td></tr>";
 
 // 适用用户选择器 - 使用增强组件
-echo "<tr class='tab_bg_1'><td>👥 ".__('适用用户', 'softwaremanager')."</td>";
+echo "<tr class='tab_bg_1'>";
+echo "<td><label style='display: flex; align-items: center;'>";
+echo "<input type='checkbox' name='user_required' value='1' style='margin-right: 8px; transform: scale(1.1);' title='勾选=用户条件必须匹配，不勾选=可选条件'>";
+echo "👥 " . __('适用用户', 'softwaremanager');
+echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+echo "</label></td>";
 echo "<td>";
 echo "<div id='users-selector-container'></div>";
 echo "<input type='hidden' name='users_id' id='users_id_hidden'>";
 echo "</td></tr>";
 
 // 适用群组选择器 - 使用增强组件
-echo "<tr class='tab_bg_1'><td>👨‍👩‍👧‍👦 ".__('适用群组', 'softwaremanager')."</td>";
+echo "<tr class='tab_bg_1'>";
+echo "<td><label style='display: flex; align-items: center;'>";
+echo "<input type='checkbox' name='group_required' value='1' style='margin-right: 8px; transform: scale(1.1);' title='勾选=群组条件必须匹配，不勾选=可选条件'>";
+echo "👨‍👩‍👧‍👦 " . __('适用群组', 'softwaremanager');
+echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+echo "</label></td>";
 echo "<td>";
 echo "<div id='groups-selector-container'></div>";
 echo "<input type='hidden' name='groups_id' id='groups_id_hidden'>";
 echo "</td></tr>";
 
 // 高级版本规则
-echo "<tr class='tab_bg_1'><td>📝 ".__('高级版本规则', 'softwaremanager')."</td>";
+echo "<tr class='tab_bg_1'>";
+echo "<td><label style='display: flex; align-items: center;'>";
+echo "<input type='checkbox' name='version_required' value='1' style='margin-right: 8px; transform: scale(1.1);' title='勾选=版本条件必须匹配，不勾选=可选条件'>";
+echo "📝 " . __('高级版本规则', 'softwaremanager');
+echo "<span style='margin-left: 6px; font-size: 11px; color: #666; font-weight: normal;'>(必需)</span>";
+echo "</label></td>";
 echo "<td>";
 echo "<textarea name='version_rules' rows='3' style='width: 100%;' placeholder='示例:&#10;>2.0&#10;<3.0&#10;1.5-2.5&#10;!=1.0'></textarea>";
 echo "<br><small style='color: #666;'>每行一个规则，支持：>2.0, <3.0, >=1.5, <=2.5, 1.0-2.0, !=1.0<br>";
 echo "留空则使用上方的简单版本字段进行匹配</small>";
 echo "</td></tr>";
+
+// 匹配逻辑设置已经整合到各个条件旁边，不再需要独立区域
+
 
 echo "<tr class='tab_bg_1'><td>".__('Comment', 'softwaremanager')."</td>";
 echo "<td><textarea name='comment' class='form-control' style='width: 100%; height: 60px;' placeholder='" . __('Optional comment', 'softwaremanager') . "'></textarea></td></tr>";
@@ -354,6 +434,8 @@ Html::closeForm();
 echo "</div>";
 echo "</div>";
 echo "</div>";
+
+// 导入模态框已移除 - 使用专用导入页面
 
 // 软件列表预览模态框
 echo "<div id='softwareListModal' class='modal' style='display: none;'>";
@@ -424,12 +506,12 @@ $header .= "<th>".__('Version', 'softwaremanager')."</th>";
 $header .= "<th>".__('Publisher', 'softwaremanager')."</th>";
 $header .= "<th>".__('Priority', 'softwaremanager')."</th>";
 $header .= "<th>".__('Active', 'softwaremanager')."</th>";
-$header .= "<th>💻 ".__('适用计算机', 'softwaremanager')."</th>";
-$header .= "<th>👥 ".__('适用用户', 'softwaremanager')."</th>";
-$header .= "<th>👨‍👩‍👧‍👦 ".__('适用群组', 'softwaremanager')."</th>";
-$header .= "<th>📝 ".__('版本规则', 'softwaremanager')."</th>";
+$header .= "<th>".__('计算机', 'softwaremanager')."</th>";
+$header .= "<th>".__('用户', 'softwaremanager')."</th>";
+$header .= "<th>".__('群组', 'softwaremanager')."</th>";
+$header .= "<th> ".__('版本规则', 'softwaremanager')."</th>";
 $header .= "<th>".__('Comment', 'softwaremanager')."</th>";
-$header .= "<th>🎯 触发软件</th>";
+$header .= "<th>触发软件</th>";
 $header .= "<th>".__('Date Added', 'softwaremanager')."</th>";
 $header .= "<th>".__('Actions', 'softwaremanager')."</th>";
 $header .= "</tr>";
@@ -448,11 +530,11 @@ if (count($all_blacklists) > 0) {
         echo "<td>".($item['priority'] ?: '0')."</td>";
         echo "<td>".($item['is_active'] ? __('Yes') : __('No'))."</td>";
         
-        // 增强字段显示
-        echo "<td>" . formatEnhancedField($item['computers_id'], 'Computer') . "</td>";
-        echo "<td>" . formatEnhancedField($item['users_id'], 'User') . "</td>";
-        echo "<td>" . formatEnhancedField($item['groups_id'], 'Group') . "</td>";
-        echo "<td>" . formatVersionRules($item['version_rules']) . "</td>";
+        // 增强字段显示，包含必需字段标识
+        echo "<td>" . formatEnhancedField($item['computers_id'], 'Computer', intval($item['computer_required'] ?? 0) == 1) . "</td>";
+        echo "<td>" . formatEnhancedField($item['users_id'], 'User', intval($item['user_required'] ?? 0) == 1) . "</td>";
+        echo "<td>" . formatEnhancedField($item['groups_id'], 'Group', intval($item['group_required'] ?? 0) == 1) . "</td>";
+        echo "<td>" . formatVersionRules($item['version_rules'], intval($item['version_required'] ?? 0) == 1) . "</td>";
         
         echo "<td>".($item['comment'] ?: '-')."</td>";
         // 触发软件数量列
@@ -467,7 +549,7 @@ if (count($all_blacklists) > 0) {
         echo "<button type='button' class='btn btn-primary btn-sm' onclick='editItem(" . $id . ");' title='" . __('Edit this item') . "' style='margin-right: 5px;'>";
         echo "<i class='fas fa-edit'></i> " . __('Edit');
         echo "</button>";
-        // 美化的删除按钮
+          // 美化的删除按钮
         echo "<button type='button' class='btn btn-danger btn-sm' onclick='deleteSingle(" . $id . ");' title='" . __('Delete this item') . "'>";
         echo "<i class='fas fa-trash-alt'></i> " . __('Delete');
         echo "</button>";
@@ -475,7 +557,7 @@ if (count($all_blacklists) > 0) {
         echo "</tr>";
     }
 } else {
-    echo "<tr class='tab_bg_1'><td colspan='14' class='center'>".__('No item found')."</td></tr>";
+    echo "<tr class='tab_bg_1'><td colspan='13' class='center'>".__('No item found')."</td></tr>";
 }
 
 echo "</table>";
@@ -527,6 +609,25 @@ echo '.software-count-badge.loaded { background: #28a745; }';
 echo '.software-count-badge.empty { background: #6c757d; cursor: default; }';
 echo '.software-count-badge.error { background: #dc3545; }';
 
+// 导入导出相关样式
+echo '.btn-info { background-color: #17a2b8; color: white; }';
+echo '.btn-info:hover { background-color: #138496; }';
+echo '.btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }';
+echo '.import-instructions { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }';
+echo '.import-instructions h4 { margin: 0 0 10px 0; color: #495057; }';
+echo '.import-instructions ul { margin: 10px 0; padding-left: 20px; }';
+echo '.import-instructions li { margin-bottom: 5px; }';
+echo '.progress-bar { width: 100%; height: 20px; background-color: #e9ecef; border-radius: 10px; overflow: hidden; }';
+echo '.progress-fill { height: 100%; background: linear-gradient(90deg, #28a745, #20c997); transition: width 0.3s ease; border-radius: 10px; }';
+echo '.file-info { display: block; color: #28a745; margin-top: 5px; font-size: 12px; }';
+
+// 通知样式
+echo '.notification { position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 4px; color: white; font-weight: bold; z-index: 9999; min-width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }';
+echo '.notification-success { background-color: #28a745; }';
+echo '.notification-error { background-color: #dc3545; }';
+echo '.notification-warning { background-color: #ffc107; }';
+echo '.notification-info { background-color: #17a2b8; }';
+
 // 软件列表模态框样式
 echo '#softwareListModal .modal-content { max-height: 80vh; overflow-y: auto; }';
 echo '.software-list-table { width: 100%; border-collapse: collapse; margin-top: 10px; }';
@@ -540,13 +641,32 @@ echo '.stat-number { font-size: 18px; font-weight: bold; color: #007bff; }';
 echo '.stat-label { font-size: 12px; color: #6c757d; }';
 echo '.loading-spinner { text-align: center; padding: 20px; color: #6c757d; }';
 
+// GLPI对象链接样式
+echo '.glpi-object-link { color: #007bff; text-decoration: none; transition: all 0.2s ease; }';
+echo '.glpi-object-link:hover { color: #0056b3; text-decoration: none; background-color: rgba(0, 123, 255, 0.1); padding: 2px 4px; border-radius: 3px; }';
+echo '.glpi-object-link i { margin-right: 4px; }';
+echo '.glpi-object-link:hover i { transform: scale(1.1); }';
+
+// 表格内链接的特殊样式
+echo '.software-list-table .glpi-object-link { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px; }';
+echo '.software-list-table .glpi-object-link:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }';
+
+// 根据对象类型的不同颜色
+echo '.software-list-table a[href*="software.form.php"] { color: #28a745; }';
+echo '.software-list-table a[href*="software.form.php"]:hover { color: #1e7e34; background-color: rgba(40, 167, 69, 0.1); }';
+echo '.software-list-table a[href*="computer.form.php"] { color: #17a2b8; }';
+echo '.software-list-table a[href*="computer.form.php"]:hover { color: #138496; background-color: rgba(23, 162, 184, 0.1); }';
+echo '.software-list-table a[href*="user.form.php"] { color: #fd7e14; }';
+echo '.software-list-table a[href*="user.form.php"]:hover { color: #e55100; background-color: rgba(253, 126, 20, 0.1); }';
+echo '.software-list-table a[href*="entity.form.php"] { color: #6610f2; }';
+echo '.software-list-table a[href*="entity.form.php"]:hover { color: #520dc2; background-color: rgba(102, 16, 242, 0.1); }';
+
 echo '</style>';
 
 // 添加CSS和JavaScript文件引用
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $CFG_GLPI['root_doc']; ?>/plugins/softwaremanager/css/enhanced-selector.css">
 <script type="text/javascript" src="<?php echo $CFG_GLPI['root_doc']; ?>/plugins/softwaremanager/js/enhanced-selector.js"></script>
-<script type="text/javascript" src="<?php echo $CFG_GLPI['root_doc']; ?>/plugins/softwaremanager/js/debug-enhanced-selector.js"></script>
 
 <script type="text/javascript">
 // 为JavaScript设置翻译文本
@@ -571,7 +691,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchUrl: searchUrl,
         onSelectionChange: function(selectedIds, selectedItems) {
             document.getElementById('computers_id_hidden').value = JSON.stringify(selectedIds);
-            console.log('计算机选择改变:', selectedIds); // 调试日志
         }
     });
     
@@ -582,7 +701,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchUrl: searchUrl,
         onSelectionChange: function(selectedIds, selectedItems) {
             document.getElementById('users_id_hidden').value = JSON.stringify(selectedIds);
-            console.log('用户选择改变:', selectedIds); // 调试日志
         }
     });
     
@@ -593,7 +711,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchUrl: searchUrl,
         onSelectionChange: function(selectedIds, selectedItems) {
             document.getElementById('groups_id_hidden').value = JSON.stringify(selectedIds);
-            console.log('群组选择改变:', selectedIds); // 调试日志
         }
     });
     
@@ -726,8 +843,32 @@ function loadSoftwareCounts() {
 async function loadSoftwareCount(ruleId, ruleType, badge) {
     try {
         const url = `<?php echo $CFG_GLPI["root_doc"]; ?>/plugins/softwaremanager/front/ajax_get_rule_matches.php?rule_id=${ruleId}&rule_type=${ruleType}`;
+        console.log('Loading software count for:', url);
+        
         const response = await fetch(url);
-        const data = await response.json();
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        // 先获取响应文本
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        
+        // 检查响应是否为空
+        if (!responseText.trim()) {
+            throw new Error('Empty response from server');
+        }
+        
+        // 尝试解析JSON
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Raw response:', responseText);
+            throw new Error('Invalid JSON response: ' + responseText.substring(0, 100));
+        }
+        
+        console.log('Parsed data:', data);
         
         if (data.success) {
             const count = data.stats.total_installations;
@@ -740,15 +881,24 @@ async function loadSoftwareCount(ruleId, ruleType, badge) {
                 badge.innerHTML = '<i class="fas fa-check"></i> 无触发';
                 badge.onclick = null;
             }
+            
+            // 显示调试信息（如果存在）
+            if (data.debug) {
+                console.log('Debug info:', data.debug);
+            }
         } else {
+            console.error('Server returned error:', data.error);
             badge.className = 'software-count-badge error';
             badge.innerHTML = '<i class="fas fa-exclamation"></i> 错误';
+            badge.title = 'Error: ' + (data.error || 'Unknown error');
             badge.onclick = null;
         }
     } catch (error) {
         console.error('Failed to load software count:', error);
+        console.error('Rule ID:', ruleId, 'Rule Type:', ruleType);
         badge.className = 'software-count-badge error';
         badge.innerHTML = '<i class="fas fa-exclamation"></i> 错误';
+        badge.title = 'Error: ' + error.message;
         badge.onclick = null;
     }
 }
@@ -803,13 +953,45 @@ function showSoftwareList(ruleId, ruleType, data) {
     `;
     
     data.installations.forEach(installation => {
+        // 构建GLPI对象链接
+        const glpiRoot = '<?php echo $CFG_GLPI["root_doc"]; ?>';
+        
+        // 软件链接
+        const softwareLink = installation.software_id ? 
+            `<a href="${glpiRoot}/front/software.form.php?id=${installation.software_id}" target="_blank" class="glpi-object-link" title="查看软件详情">
+                <i class="fas fa-cube"></i> <strong>${installation.software_name}</strong>
+            </a>` : 
+            `<strong>${installation.software_name}</strong>`;
+        
+        // 计算机链接
+        const computerLink = installation.computer_id ? 
+            `<a href="${glpiRoot}/front/computer.form.php?id=${installation.computer_id}" target="_blank" class="glpi-object-link" title="查看计算机详情">
+                <i class="fas fa-desktop"></i> ${installation.computer_name}
+            </a>` : 
+            installation.computer_name;
+        
+        // 用户链接
+        const userDisplayName = installation.user_realname || installation.user_name || 'N/A';
+        const userLink = installation.user_id ? 
+            `<a href="${glpiRoot}/front/user.form.php?id=${installation.user_id}" target="_blank" class="glpi-object-link" title="查看用户详情">
+                <i class="fas fa-user"></i> ${userDisplayName}
+            </a>` : 
+            userDisplayName;
+        
+        // 实体链接（如果需要的话）
+        const entityLink = installation.entity_id ? 
+            `<a href="${glpiRoot}/front/entity.form.php?id=${installation.entity_id}" target="_blank" class="glpi-object-link" title="查看实体详情">
+                <i class="fas fa-building"></i> ${installation.entity_name}
+            </a>` : 
+            installation.entity_name;
+        
         tableHtml += `
             <tr>
-                <td><strong>${installation.software_name}</strong></td>
+                <td>${softwareLink}</td>
                 <td>${installation.software_version}</td>
-                <td>${installation.computer_name}</td>
-                <td>${installation.user_realname || installation.user_name || 'N/A'}</td>
-                <td>${installation.entity_name}</td>
+                <td>${computerLink}</td>
+                <td>${userLink}</td>
+                <td>${entityLink}</td>
                 <td>${installation.date_install || 'N/A'}</td>
             </tr>
         `;
@@ -837,8 +1019,34 @@ document.addEventListener('click', function(event) {
         hideSoftwareListModal();
     }
 });
+
 </script>
 <script type="text/javascript" src="<?php echo $CFG_GLPI['root_doc']; ?>/plugins/softwaremanager/js/blacklist.js"></script>
+<!-- Import/Export JavaScript removed - using dedicated import page -->
+<script type="text/javascript">
+// 导出和下载模板功能
+function exportBlacklist() {
+    console.log('导出黑名单数据');
+    const exportUrl = '<?php echo $CFG_GLPI["root_doc"]; ?>/plugins/softwaremanager/ajax/export_direct.php?action=export_blacklist';
+    console.log('Export URL:', exportUrl);
+    window.open(exportUrl, '_blank');
+}
+
+function exportWhitelist() {
+    console.log('导出白名单数据');
+    const exportUrl = '<?php echo $CFG_GLPI["root_doc"]; ?>/plugins/softwaremanager/ajax/export_direct.php?action=export_whitelist';
+    console.log('Export URL:', exportUrl);
+    window.open(exportUrl, '_blank');
+}
+
+function downloadTemplate(type) {
+    console.log('下载模板:', type);
+    const templateUrl = '<?php echo $CFG_GLPI["root_doc"]; ?>/plugins/softwaremanager/ajax/export_direct.php?action=download_template&type=' + type;
+    console.log('Template URL:', templateUrl);
+    window.open(templateUrl, '_blank');
+}
+</script>
+<script type="text/javascript" src="<?php echo $CFG_GLPI['root_doc']; ?>/plugins/softwaremanager/js/csv-preview.js?v=<?php echo time(); ?>"></script>
 
 <script type="text/javascript">
 // 检查URL参数，如果有edit_rule参数则自动打开编辑模态框

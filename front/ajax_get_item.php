@@ -54,7 +54,13 @@ try {
                 'computers_id' => parseEnhancedField($item->fields['computers_id']),
                 'users_id' => parseEnhancedField($item->fields['users_id']),
                 'groups_id' => parseEnhancedField($item->fields['groups_id']),
-                'version_rules' => $item->fields['version_rules'] ?? ''
+                'version_rules' => $item->fields['version_rules'] ?? '',
+                
+                // Required field flags - 添加必需字段标识
+                'computer_required' => intval($item->fields['computer_required'] ?? 0),
+                'user_required' => intval($item->fields['user_required'] ?? 0),
+                'group_required' => intval($item->fields['group_required'] ?? 0),
+                'version_required' => intval($item->fields['version_required'] ?? 0)
             ]
         ];
         

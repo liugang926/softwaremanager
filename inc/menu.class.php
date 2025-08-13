@@ -81,7 +81,7 @@ class PluginSoftwaremanagerMenu extends CommonGLPI {
             // Import/Export functionality
             $menu['options']['import'] = [
                 'title' => 'Import/Export',
-                'page'  => '/plugins/softwaremanager/front/import.php',
+                'page'  => '/plugins/softwaremanager/front/enhanced_import.php',
                 'icon'  => 'fas fa-file-import'
             ];
 
@@ -91,6 +91,8 @@ class PluginSoftwaremanagerMenu extends CommonGLPI {
                 'page'  => '/plugins/softwaremanager/front/config.php',
                 'icon'  => 'fas fa-cog'
             ];
+
+            // Email configuration/test entries removed (migrated to Notification-based flow)
         }
 
         return $menu;
@@ -221,7 +223,7 @@ class PluginSoftwaremanagerMenu extends CommonGLPI {
 
         echo "<div class='center'>";
         echo "<table class='tab_cadre_fixe software-manager-nav-table'>";
-        echo "<tr><th colspan='6'><i class='fas fa-shield-alt' style='margin-right: 8px; color: #17a2b8;'></i>软件合规管理系统</th></tr>";
+        echo "<tr><th colspan='8'><i class='fas fa-shield-alt' style='margin-right: 8px; color: #17a2b8;'></i>软件合规管理系统</th></tr>";
         echo "<tr class='tab_bg_1'>";
 
         $menu_items = [

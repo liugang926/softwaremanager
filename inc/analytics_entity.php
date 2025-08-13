@@ -173,8 +173,7 @@ if ($selected_entity_id) {
                         AND c.entities_id = $selected_entity_id
                         AND c.is_deleted = 0
                         GROUP BY sd.computer_name 
-                        ORDER BY blacklisted_count DESC, total_software DESC
-                        LIMIT 20";
+                        ORDER BY blacklisted_count DESC, total_software DESC";
     $computers_result = $DB->query($computers_query);
     
     if ($computers_result && $DB->numrows($computers_result) > 0) {

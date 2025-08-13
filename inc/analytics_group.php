@@ -220,8 +220,7 @@ if ($selected_group_id) {
                             ))
                         )
                         GROUP BY sd.computer_name, c.groups_id, c.users_id, u_assigned.name, u_assigned.realname
-                        ORDER BY blacklisted_count DESC, total_software DESC
-                        LIMIT 20";
+                        ORDER BY blacklisted_count DESC, total_software DESC";
     $computers_result = $DB->query($computers_query);
     
     if ($computers_result && $DB->numrows($computers_result) > 0) {
@@ -324,8 +323,7 @@ if ($selected_group_id) {
                         ))
                     )
                     GROUP BY sd.user_name, sd.user_realname
-                    ORDER BY blacklisted_count DESC, total_software DESC
-                    LIMIT 15";
+                    ORDER BY blacklisted_count DESC, total_software DESC";
     $users_result = $DB->query($users_query);
     
     if ($users_result && $DB->numrows($users_result) > 0) {

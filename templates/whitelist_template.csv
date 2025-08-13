@@ -1,0 +1,6 @@
+name,version,publisher,category,priority,is_active,computers_id,users_id,groups_id,version_rules,comment
+Microsoft Office,2021,Microsoft Corporation,Office Suite,10,1,,,,,办公软件套件
+Adobe Photoshop,2023,Adobe Inc.,Graphics,8,1,,,,>2022.0,图像处理软件
+Google Chrome,,Google Inc.,Browser,5,1,,,,,网页浏览器
+TeamViewer,,TeamViewer GmbH,Remote Access,3,1,,,,,远程控制软件
+WinRAR,6.0,RARLAB,Compression,7,1,,,,,压缩解压软件
