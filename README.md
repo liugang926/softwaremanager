@@ -493,3 +493,34 @@ Copyright © 2025 Abner Liu. All rights reserved.
 **⭐ 如果这个项目对您有帮助，请给我们一个 Star！**
 
 **🔄 欢迎 Fork 和贡献代码！**
+
+## 项目效果图
+### 软件清单管理
+<img width="2406" height="1378" alt="image" src="https://github.com/user-attachments/assets/d46c1bdb-9c11-46b7-b825-3643b1a4508f" />
+### 扫描历史记录
+<img width="2352" height="1310" alt="image" src="https://github.com/user-attachments/assets/8515d83d-5f75-4bd8-b322-cf0349ef8184" />
+### 白名单管理
+<img width="2372" height="1092" alt="image" src="https://github.com/user-attachments/assets/f400267f-f9ba-4f26-99be-e927132fca99" />
+### 黑名单管理
+<img width="2254" height="1132" alt="image" src="https://github.com/user-attachments/assets/a96304b2-bd91-4484-a5ec-95ac9ff5e7d8" />
+### 触发软件展示
+<img width="2222" height="1108" alt="image" src="https://github.com/user-attachments/assets/4020ef3c-ad62-464c-b59a-6abc538ec712" />
+### 导入管理页面
+<img width="2308" height="1296" alt="image" src="https://github.com/user-attachments/assets/400761dd-0866-4323-9540-270990179084" />
+### 邮件报告接收配置
+<img width="2268" height="1170" alt="image" src="https://github.com/user-attachments/assets/42330518-a706-492b-932c-0eee3b0f494f" />
+### 多维度管理报表
+<img width="2350" height="1398" alt="image" src="https://github.com/user-attachments/assets/b8f38e34-4b1e-4d19-82bc-2f3292216da4" />
+### 邮件通知
+<img width="1864" height="1190" alt="image" src="https://github.com/user-attachments/assets/d08934da-0848-4928-a54c-b419f81c1df7" />
+<img width="1878" height="1574" alt="image" src="https://github.com/user-attachments/assets/902fd285-7f30-4da5-bcbc-8ede0ede77b5" />
+
+
+
+
+
+
+
+
+
+
