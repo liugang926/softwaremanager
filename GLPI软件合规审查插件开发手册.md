@@ -5,7 +5,7 @@
 本插件旨在增强 GLPI 的软件资产管理能力。核心功能是基于 GLPI 数据库中已有的软件清单，通过管理员配置的黑白名单，实现对组织内软件安装的合规性审查。插件将提供一个集中的软件清单视图，方便管理员快速将软件归类至黑名单或白名单。通过手动或自动化的合规性审查，系统能生成详细的审查报告，清晰地列出安装了违规软件（黑名单）和未报备软件（非白名单）的电脑及使用人信息，并支持邮件通知功能，从而实现高效、自动化的软件合规闭环管理。
 
 开发作者：Abner Liu(大刘讲IT)
-插件仓库地址：https://github.com/liugang926/GLPI_softwarecompliance.git
+插件仓库地址：https://github.com/liugang926/softwaremanager.git
 创作日期：2025年7月
 
 ## **插件名称与结构 (现代实践版)**
@@ -214,7 +214,7 @@
             *   `addUnregisteredRecord($historyId, $softwareName, $computerId, $userId, $groupId)`: 添加一条未报备软件记录。
             *   `getResultsForHistory($historyId, $type)`: 获取指定扫描历史记录下的所有结果（可按 `type` 区分黑名单或未报备）。
     *   在 `install` 函数中添加创建相应数据表的逻辑。
-2.  **实现审查逻辑 (`ajax/runscan.php`)**：
+2.  **实现审查逻辑 (`ajax/compliance_scan.php`)**：
     *   此脚本用于触发一次手动的合规性扫描。其核心逻辑必须精确实现新的匹配规则和结果聚合。
     *   **核心审查逻辑 (重构后)**:
         1.  **权限与安全检查**: 检查 `plugin_softwaremanager_scan_run` 权限和 CSRF 令牌。
@@ -521,7 +521,7 @@ msgstr "执行新扫描 (软件管理器)"
     AJAX接口是常见的安全弱点，**必须**同时检查 **CSRF令牌** 和 **用户权限**。
 
     ```php
-    // ajax/runscan.php
+    // ajax/compliance_scan.php
     include('../../../inc/includes.php');
 
     // 1. 检查权限，无权则直接退出

@@ -80,6 +80,9 @@ try {
     <?php else: ?>
     <p class="success">✅ 文件已上传: <?php echo htmlspecialchars($_FILES['csv_file']['name']); ?></p>
     <?php endif; ?>
+
+    <!-- 导入结果（内联容器，固定放在上传区块下方） -->
+    <div id="import_results_inline" style="display:none; margin-top: 15px;"></div>
 </div>
 
 <?php if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK): ?>
@@ -432,7 +435,7 @@ try {
         </ul>
     </div>
     
-    <form method="post" action="confirm_import.php" style="text-align: center; margin: 20px 0;">
+    <form id="confirm_import_form" method="post" action="confirm_import.php" style="text-align: center; margin: 20px 0;">
         <input type="hidden" name="confirm_import" value="1">
         <button type="submit" class="btn btn-success" style="font-size: 16px; padding: 15px 30px;">
             🚀 确认导入 (<?php echo count($processed_data); ?> 条记录)
@@ -441,6 +444,38 @@ try {
             🔄 重新选择文件
         </button>
     </form>
+
+    <script>
+    (function(){
+      var form = document.getElementById('confirm_import_form');
+      if (!form) return;
+      form.addEventListener('submit', function(e){
+        try {
+          e.preventDefault();
+          var container = document.getElementById('import_results_inline');
+          if (container) {
+            container.style.display = 'block';
+            container.innerHTML = '<div class="info">正在执行导入，请稍候...</div>';
+          }
+          var fd = new FormData(form);
+          fd.append('partial', '1');
+          fetch(form.action, { method: 'POST', body: fd })
+            .then(function(resp){ return resp.text(); })
+            .then(function(html){
+              if (container) {
+                container.innerHTML = html;
+                try { container.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
+              }
+            })
+            .catch(function(err){
+              if (container) {
+                container.innerHTML = '<div class="error">导入失败: '+ (err && err.message ? err.message : '网络错误') +'</div>';
+              }
+            });
+        } catch (ex) {}
+      });
+    })();
+    </script>
 </div>
 
 <?php } ?>

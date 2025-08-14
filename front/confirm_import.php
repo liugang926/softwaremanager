@@ -27,6 +27,7 @@ $import_type = $preview_data['import_type'];
 $processed_data = $preview_data['processed_data'];
 
 ?>
+<?php $is_partial = isset($_POST['partial']); if (!$is_partial) { ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,6 +49,7 @@ $processed_data = $preview_data['processed_data'];
 <body>
 
 <h1>🚀 导入执行结果</h1>
+<?php } ?>
 
 <?php
 // 执行导入
@@ -156,10 +158,12 @@ echo "</div>";
 unset($_SESSION['import_preview_data']);
 ?>
 
+<?php if (!$is_partial) { ?>
 <div style="text-align: center; margin: 30px 0;">
     <a href="enhanced_import_preview.php" class="btn btn-primary">🔄 导入更多文件</a>
     <a href="<?php echo $import_type; ?>.php" class="btn btn-success">📋 查看<?php echo $import_type === 'blacklist' ? '黑名单' : '白名单'; ?></a>
 </div>
+<?php } ?>
 
 <div class="info">
     <h3>📋 注意事项</h3>
@@ -171,5 +175,7 @@ unset($_SESSION['import_preview_data']);
     </ul>
 </div>
 
+<?php if (!$is_partial) { ?>
 </body>
 </html>
+<?php } ?>

@@ -1,0 +1,5 @@
+.sm-subtabs{display:flex;gap:10px;align-items:center;border-bottom:1px solid #e5e7eb;margin:6px 0 12px 0}
+.sm-subtabs a{padding:8px 14px;border:1px solid #e5e7eb;border-bottom:none;background:#f3f4f6;color:#374151;border-radius:6px 6px 0 0;text-decoration:none;font-size:13px}
+.sm-subtabs a.active{background:#1f2937;color:#fff;border-color:#1f2937}
+.sm-subtabs a:hover{background:#e5e7eb}
+

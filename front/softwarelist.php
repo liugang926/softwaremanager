@@ -447,24 +447,35 @@ $status = isset($_GET['status']) ? $_GET['status'] : 'all';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 $order = isset($_GET['order']) ? $_GET['order'] : 'ASC';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
+$limit_param = isset($_GET['limit']) ? (string)$_GET['limit'] : '50';
 
-// Validate parameters
-$valid_limits = [10, 25, 50, 100, 250];
-if (!in_array($limit, $valid_limits)) {
-    $limit = 50;
+// Validate parameters (support 999 and 'all')
+$valid_limits = ['10', '25', '50', '100', '250', '999', 'all'];
+if (!in_array((string)$limit_param, $valid_limits, true)) {
+    $limit_param = '50';
 }
+$is_all = ($limit_param === 'all');
+$limit = $is_all ? 0 : intval($limit_param);
 
-$start = ($page - 1) * $limit;
+// We'll compute $start after determining final $limit below
+
+// Get total count for pagination first
+$total_count = PluginSoftwaremanagerSoftwareInventory::getSoftwareInventoryCount(
+    $search, $manufacturer, $status
+);
+
+// Finalize limit/start if "all" selected
+if ($is_all) {
+    $limit = max(1, (int)$total_count);
+    $page = 1;
+    $start = 0;
+} else {
+    $start = ($page - 1) * $limit;
+}
 
 // Get software inventory data
 $software_list = PluginSoftwaremanagerSoftwareInventory::getSoftwareInventory(
     $start, $limit, $search, $manufacturer, $status, $sort, $order
-);
-
-// Get total count for pagination
-$total_count = PluginSoftwaremanagerSoftwareInventory::getSoftwareInventoryCount(
-    $search, $manufacturer, $status
 );
 
 // Get dashboard statistics
@@ -583,16 +594,17 @@ echo "</td>";
 // Items per page
 echo "<td><label>" . __('Items per page') . ":</label></td>";
 echo "<td>";
-$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
 $limit_options = [
-    10 => '10',
-    25 => '25', 
-    50 => '50',
-    100 => '100',
-    250 => '250'
+    '10' => '10',
+    '25' => '25', 
+    '50' => '50',
+    '100' => '100',
+    '250' => '250',
+    '999' => '999',
+    'all' => __('All')
 ];
 Dropdown::showFromArray('limit', $limit_options, [
-    'value' => $limit,
+    'value' => $limit_param,
     'width' => '80px'
 ]);
 echo "</td>";

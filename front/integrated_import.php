@@ -180,6 +180,7 @@ function handleImport() {
     return [
         'success' => $success_count > 0,
         'message' => "导入完成: 成功 $success_count 条, 失败 $error_count 条",
+        'error'   => $success_count > 0 ? '' : "导入失败：成功 0 条，失败 $error_count 条",
         'details' => $details
     ];
 }
@@ -317,7 +318,7 @@ PluginSoftwaremanagerMenu::displayNavigationHeader('import');
 <h2>CSV导入预览系统</h2>
 
 <!-- 上传表单 -->
-<?php if (!$preview_data && !$import_results): ?>
+<?php if (!$preview_data): ?>
 <div class='spaced'>
 <form method='post' enctype='multipart/form-data'>
 <table class='tab_cadre_fixe'>
@@ -357,6 +358,45 @@ PluginSoftwaremanagerMenu::displayNavigationHeader('import');
 
 </table>
 </form>
+</div>
+<?php endif; ?>
+
+<!-- 导入结果（紧跟上传区块下方显示） -->
+<?php if ($import_results): ?>
+<div class='spaced'>
+<table class='tab_cadre_fixe'>
+<tr><th>导入结果</th></tr>
+<tr class='tab_bg_1'>
+<td>
+
+<?php if ($import_results['success']): ?>
+<div class='alert alert-success'>
+<h4>✅ <?php echo htmlspecialchars($import_results['message']); ?></h4>
+</div>
+<?php else: ?>
+<div class='alert alert-danger'>
+<h4>❌ <?php echo htmlspecialchars($import_results['error']); ?></h4>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($import_results['details'])): ?>
+<div class='alert alert-info'>
+<h4>详细结果</h4>
+<ul>
+<?php foreach (array_slice($import_results['details'], 0, 10) as $detail): ?>
+<li><?php echo htmlspecialchars($detail); ?></li>
+<?php endforeach; ?>
+</ul>
+</div>
+<?php endif; ?>
+
+<div style='text-align: center; margin: 15px 0;'>
+<a href='?' class='submit'>导入更多文件</a>
+</div>
+
+</td>
+</tr>
+</table>
 </div>
 <?php endif; ?>
 
@@ -463,47 +503,8 @@ PluginSoftwaremanagerMenu::displayNavigationHeader('import');
 </table>
 </div>
 <?php endif; ?>
-<?php endif; ?>
-
-<!-- 导入结果 -->
-<?php if ($import_results): ?>
-<div class='spaced'>
-<table class='tab_cadre_fixe'>
-<tr><th>导入结果</th></tr>
-<tr class='tab_bg_1'>
-<td>
-
-<?php if ($import_results['success']): ?>
-<div class='alert alert-success'>
-<h4>✅ <?php echo htmlspecialchars($import_results['message']); ?></h4>
-</div>
-<?php else: ?>
-<div class='alert alert-danger'>
-<h4>❌ <?php echo htmlspecialchars($import_results['error']); ?></h4>
-</div>
-<?php endif; ?>
-
-<?php if (!empty($import_results['details'])): ?>
-<div class='alert alert-info'>
-<h4>详细结果</h4>
-<ul>
-<?php foreach (array_slice($import_results['details'], 0, 10) as $detail): ?>
-<li><?php echo htmlspecialchars($detail); ?></li>
-<?php endforeach; ?>
-</ul>
-</div>
-<?php endif; ?>
-
-<div style='text-align: center; margin: 15px 0;'>
-<a href='?' class='submit'>导入更多文件</a>
-</div>
-
-</td>
-</tr>
-</table>
-</div>
-<?php endif; ?>
 
 </div>
-
-<?php Html::footer(); ?>
+<?php
+Html::footer();
+?>

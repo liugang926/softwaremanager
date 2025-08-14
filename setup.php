@@ -4,10 +4,10 @@
  * 
  * @author  Abner Liu
  * @license GPL-2.0+
- * @link    https://github.com/liugang926/GLPI_softwarecompliance.git
+ * @link    https://github.com/liugang926/softwaremanager.git
  */
 
-define('PLUGIN_SOFTWAREMANAGER_VERSION', '1.0.0');
+define('PLUGIN_SOFTWAREMANAGER_VERSION', '1.0.1');
 define('PLUGIN_SOFTWAREMANAGER_MIN_GLPI', '10.0.0');
 define('PLUGIN_SOFTWAREMANAGER_MAX_GLPI', '11.0.0');
 
@@ -56,6 +56,11 @@ function plugin_init_softwaremanager() {
         'plugin_softwaremanager' => __('Use Software Manager', 'softwaremanager'),
     ];
 
+    // Make plugin name clickable in plugin list, and expose config page icon
+    // Use paths relative to the plugin web dir to avoid duplicated prefix
+    $PLUGIN_HOOKS['home']['softwaremanager'] = 'front/softwarelist.php';
+    $PLUGIN_HOOKS['config_page']['softwaremanager'] = 'front/config.php';
+
     // Check if user can access plugin UI (menu, assets)
     if (isset($_SESSION['glpiID']) && $_SESSION['glpiID']) {
         // Include required class files only when needed
@@ -91,7 +96,7 @@ function plugin_version_softwaremanager() {
         'version'        => PLUGIN_SOFTWAREMANAGER_VERSION,
         'author'         => 'Abner Liu',
         'license'        => 'GPL-2.0+',
-        'homepage'       => 'https://github.com/liugang926/GLPI_softwarecompliance.git',
+        'homepage'       => 'https://github.com/liugang926/softwaremanager',
         'requirements'   => [
             'glpi'   => [
                 'min' => PLUGIN_SOFTWAREMANAGER_MIN_GLPI,

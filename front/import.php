@@ -291,15 +291,7 @@ echo "<div class='example-block'>";
 echo "<pre style='margin: 0; font-family: Consolas, Monaco, monospace; font-size: 0.9rem;'>Microsoft Office,2021,Microsoft,Office,1,1,PC001,张三,IT部,>=2021,Office suite,1,0,1,0
 Adobe Photoshop,2023,Adobe,Graphics,8,1,DESIGN-PC,designer,设计部,>2022.0,图像处理软件,1,1,0,1</pre>";
 echo "</div>";
-// Inline results area placed inside the upload card (just below the buttons)
-echo "<div id='import_results_inline' class='card' style='display:none; margin-top: 15px;'>";
-echo "<div class='card-header'>";
-echo "<i class='fas fa-check-circle'></i> " . __('导入结果', 'softwaremanager');
-echo "</div>";
-echo "<div class='card-body'>";
-echo "<div id='import_results_inline_content'></div>";
-echo "</div>";
-echo "</div>";
+// (moved) inline results container will be rendered below the upload area
 echo "</div>";
 echo "</div>";
 
@@ -348,7 +340,18 @@ echo "box-shadow: 0 4px 15px rgba(132, 250, 176, 0.3);'>";
 echo "<i class='fas fa-upload'></i> 直接导入</button>";
 echo "</div>";
 
+// close two-column
 echo "</div>";
+// Inline results area INSIDE upload section to respect CSS order
+echo "<div id='import_results_inline' class='card' style='display:none; margin-top: 15px;'>";
+echo "  <div class='card-header'>";
+echo "    <i class='fas fa-check-circle'></i> " . __('导入结果', 'softwaremanager');
+echo "  </div>";
+echo "  <div class='card-body'>";
+echo "    <div id='import_results_inline_content'></div>";
+echo "  </div>";
+echo "</div>";
+// close upload-section
 echo "</div>";
 
 // Preview area
@@ -474,7 +477,7 @@ $(document).ready(function() {
                 $('#import_results_inline_content').html(formatImportResults(response));
                 $('#import_results_inline').show();
                 $('#import_results').hide();
-                try { document.getElementById('import_results_inline').scrollIntoView({behavior: 'smooth', block: 'center'}); } catch (e) {}
+                // keep viewport position; no auto scroll
                 
                 if (response.success) {
                     // Reset form
@@ -492,7 +495,7 @@ $(document).ready(function() {
                 $('#import_results_inline_content').html('<div class=\"alert alert-danger\">' + error + '</div>');
                 $('#import_results_inline').show();
                 $('#import_results').hide();
-                try { document.getElementById('import_results_inline').scrollIntoView({behavior: 'smooth', block: 'center'}); } catch (e) {}
+                // keep viewport position; no auto scroll
             },
             complete: function() {
                 $('#import_btn').prop('disabled', false).text('直接导入');
