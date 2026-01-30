@@ -1,0 +1,9 @@
+name,version,publisher,category,priority,is_active,computers,users,groups,version_rules,comment,computer_required,user_required,group_required,version_required
+Microsoft Office,365,Microsoft,Productivity,10,1,DESKTOP-001,张三,开发团队,>=2016,办公软件套件,1,0,1,0
+Adobe Photoshop,CC 2023,Adobe,Design,8,1,DESKTOP-002,李四,设计团队,>=2020,图像处理软件,1,1,0,1
+Notepad++,8.4.4,Notepad++ Team,Development,5,1,,王五,,轻量级文本编辑器,0,0,0,0
+Google Chrome,118.0,Google,Browser,9,1,DESKTOP-003,赵六,,>=100,网络浏览器,1,0,0,1
+Visual Studio Code,1.85,Microsoft,Development,10,1,DESKTOP-004,钱七,开发团队,>=1.70,代码编辑器,1,0,1,1
+7-Zip,23.01,Igor Pavlov,Utility,3,1,,孙八,,压缩工具,0,0,0,0
+Adobe Acrobat Reader,DC,Adobe,Productivity,7,1,DESKTOP-005,周九,,>=11,PDF阅读器,1,0,0,1
+TeamViewer,15.49,TeamViewer,Remote Access,6,1,,吴十,,>=15,远程控制软件,0,0,0,1

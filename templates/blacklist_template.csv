@@ -1,0 +1,6 @@
+name,version,publisher,category,priority,is_active,computers_id,users_id,groups_id,version_rules,comment
+BitTorrent,,BitTorrent Inc.,P2P,90,1,,,,,种子下载软件
+uTorrent,,BitTorrent Inc.,P2P,90,1,,,,,种子下载软件
+迅雷,,Xunlei Ltd.,Download,85,1,,,,,下载工具
+QQ游戏,,Tencent,Game,70,1,,,,,游戏平台
+WeChat,,Tencent,Chat,60,0,,,,,聊天软件（可选择性禁用）
